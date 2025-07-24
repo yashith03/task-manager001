@@ -1,0 +1,38 @@
+{
+  "name": "task-manager-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "cross-env NODE_ENV=test jest --forceExit --detectOpenHandles --testPathIgnorePatterns=integration",
+    "test:unit": "cross-env NODE_ENV=test jest --forceExit --detectOpenHandles --testPathIgnorePatterns=integration",
+    "test:integration": "cross-env NODE_ENV=test RUN_INTEGRATION_TESTS=true jest --forceExit --detectOpenHandles --testPathPattern=integration",
+    "test:all": "cross-env NODE_ENV=test RUN_INTEGRATION_TESTS=true jest --forceExit --detectOpenHandles",
+    "test:watch": "cross-env NODE_ENV=test jest --watch --testPathIgnorePatterns=integration",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage --forceExit --detectOpenHandles --testPathIgnorePatterns=integration"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "axios": "^1.10.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.3",
+    "nodemailer": "^7.0.5",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.12.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^30.0.5",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.1.3"
+  }
+}

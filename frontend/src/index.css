@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* Reset + global layout */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+body {
+  font-family: 'Comic Neue', 'Inter', sans-serif;
+  line-height: 1.6;
+  -ms-overflow-style: none; /* IE/Edge scrollbar hide */
+  scrollbar-width: none; /* Firefox scrollbar hide */
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+/* Theme variables */
+@layer base {
+  :root {
+    --color-background: 0 0% 100%;         /* white */
+    --color-text: 0 0% 7%;                 /* near black */
+    --color-primary: 47 100% 55%;          /* vibrant yellow-green */
+    --color-secondary: 220 80% 60%;        /* blue */
+    --color-card: 0 0% 95%;                /* light gray card bg */
+  }
+}
+
+/* Animation keyframes */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Utility animations */
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Flip card */
+.flip-card-inner {
+  transform-style: preserve-3d;
+}
+
+.flip-card-front,
+.flip-card-back {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
