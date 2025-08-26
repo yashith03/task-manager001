@@ -137,6 +137,10 @@ npm run preview   # Preview production build
 npm test          # Run frontend tests
 ```
 
+
+https://github.com/user-attachments/assets/fb7c704a-4cef-488f-8308-c8591dd1a630
+
+
 ---
 
 ## ✅ Project Completion Checklist
