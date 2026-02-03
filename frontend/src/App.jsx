@@ -1,3 +1,5 @@
+// frontend/src/App.jsx
+
 import { useState, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useDarkMode } from "./components/DarkModeContext";

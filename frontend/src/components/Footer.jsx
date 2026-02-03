@@ -1,3 +1,4 @@
+// frontend/src/components/Footer.jsx
 
 import React from 'react';
 import { FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa';

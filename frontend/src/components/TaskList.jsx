@@ -15,13 +15,14 @@ const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }) => {
   const [currentEditTags, setCurrentEditTags] = useState('');
   const editInputRef = useRef(null);
 
+  // Defensive guard against non-array tasks
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
       editInputRef.current.focus();
     }
   }, [editingTaskId]);
-
-  const sortedTasks = [...tasks].sort((a, b) => a.completed - b.completed);
 
   const getPriorityBgColor = (task) => {
     if (task.completed) return isDarkMode ? "bg-gray-700" : "bg-gray-300";
@@ -39,6 +40,15 @@ const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }) => {
     return date.toLocaleString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit', hour12: true
+    });
+  };
+
+  const formatDateOnly = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -62,9 +72,15 @@ const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }) => {
       tags: currentEditTags.split(',').map(tag => tag.trim()).filter(Boolean),
     });
     setEditingTaskId(null);
+    setCurrentEditText('');
+    setCurrentEditTags('');
   };
 
-  const handleCancelEdit = () => setEditingTaskId(null);
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setCurrentEditText('');
+    setCurrentEditTags('');
+  };
 
   const handleDeleteClick = (id, text) => {
     if (!id) return;
@@ -115,12 +131,12 @@ const renderActionButtons = (task) => {
 };
 
 
-  const incompleteTasks = sortedTasks.filter(t => !t.completed);
-  const completedTasks = sortedTasks.filter(t => t.completed);
+  const incompleteTasks = safeTasks.filter(t => !t.completed);
+  const completedTasks = safeTasks.filter(t => t.completed);
 
   return (
     <div className="flex flex-col w-full gap-4">
-      {tasks.length === 0 ? (
+      {safeTasks.length === 0 ? (
         <p className={`text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>No tasks to show.</p>
       ) : (
         <>
@@ -160,7 +176,7 @@ const renderActionButtons = (task) => {
                         </div>
                         <div className={`text-sm flex flex-wrap gap-x-4 gap-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           <span><strong>Priority:</strong> {task.priority}</span>
-                          {task.dueDate && <span><strong>Due:</strong> {task.dueDate}</span>}
+                          {task.dueDate && <span><strong>Due:</strong> {formatDateOnly(task.dueDate)}</span>}
                           {task.createdAt && <span><strong>Created:</strong> {formatDateTime(task.createdAt)}</span>}
                           {task.tags?.length > 0 && (
                             <span className="flex items-center gap-2">
@@ -200,7 +216,7 @@ const renderActionButtons = (task) => {
                     </div>
                      <div className={`text-sm flex flex-wrap gap-x-4 gap-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
       <span><strong>Priority:</strong> {task.priority}</span>
-      {task.dueDate && <span><strong>Due:</strong> {task.dueDate}</span>}
+      {task.dueDate && <span><strong>Due:</strong> {formatDateOnly(task.dueDate)}</span>}
       {task.createdAt && <span><strong>Created:</strong> {formatDateTime(task.createdAt)}</span>}
       {task.tags?.length > 0 && (
         <span className="flex items-center gap-2">

@@ -1,3 +1,5 @@
+// frontend/src/components/Loader.jsx
+
 import React from 'react';
 
 import { useEffect, useRef, useState } from "react";

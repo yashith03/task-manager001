@@ -1,3 +1,5 @@
+// frontend/src/components/TaskDashboard.jsx
+
 import React from 'react';
 
 
@@ -8,7 +10,6 @@ import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
 import TaskFilterIcon from "../assets/Filter.png";
 import TaskFilterIconDark from "../assets/Filter_Dark.png";
-import { loadTasks } from "../components/localStorage";
 import { useDarkMode } from "../components/DarkModeContext";
 import API from "../api/axios";
 
@@ -17,13 +18,13 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const dashboardRef = useRef(null);
 
-  const [tasks, setTasks] = useState(() => loadTasks());
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [tagFilter, setTagFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+const [tasks, setTasks] = useState([]);
+const [loading, setLoading] = useState(false);
+const [searchTerm, setSearchTerm] = useState("");
+const [statusFilter, setStatusFilter] = useState("All");
+const [priorityFilter, setPriorityFilter] = useState("All");
+const [tagFilter, setTagFilter] = useState("");
+const [showFilters, setShowFilters] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
   const [showGuestAlert, setShowGuestAlert] = useState(false);
   const [showHelpPopup, setShowHelpPopup] = useState(false);
@@ -75,22 +76,23 @@ const itemVariants = {
     }
   }, [navigate]);
 
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      const response = await API.get("/tasks");
-      setTasks(response.data);
-    } catch (err) {
-      console.error("Error fetching tasks:", err);
-      alert("Failed to load tasks. Please refresh the page.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchTasks = async () => {
+  try {
+    setLoading(true);
+    const response = await API.get("tasks");
+
+    const data = Array.isArray(response.data) ? response.data : [];
+    setTasks(data);
+  } catch (err) {
+    console.error("Error fetching tasks:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const handleAddTask = async (newTaskData) => {
   try {
-    const res = await API.post("/tasks", newTaskData);
+    const res = await API.post("tasks", newTaskData);
     const savedTask = res.data; 
     setTasks([savedTask, ...tasks]);
   } catch (err) {
@@ -110,7 +112,7 @@ const handleToggleComplete = async (id) => {
       return;
     }
 
-    await API.put(`/tasks/${id}`, {
+    await API.put(`tasks/${id}`, {
       ...taskToToggle,
       completed: !taskToToggle.completed,
     });
@@ -125,7 +127,7 @@ const handleToggleComplete = async (id) => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await API.delete(`/tasks/${taskId}`);
+      await API.delete(`tasks/${taskId}`);
       fetchTasks();
     } catch (err) {
       console.error("Error deleting task:", err);
@@ -135,7 +137,7 @@ const handleToggleComplete = async (id) => {
 
   const handleEditTask = async (taskId, updatedTaskData) => {
     try {
-      await API.put(`/tasks/${taskId}`, updatedTaskData);
+      await API.put(`tasks/${taskId}`, updatedTaskData);
       setTasks((prev) =>
         prev.map((task) =>
           task.id === taskId ? { ...task, ...updatedTaskData } : task
@@ -147,7 +149,9 @@ const handleToggleComplete = async (id) => {
     }
   };
 
-  const filteredTasks = tasks
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+
+  const filteredTasks = safeTasks
     .filter((task) => {
       const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus =
@@ -165,9 +169,9 @@ const handleToggleComplete = async (id) => {
     })
     .sort((a, b) => a.completed - b.completed);
 
-  const allTasksCount = tasks.length;
-  const activeTasksCount = tasks.filter((task) => !task.completed).length;
-  const completedTasksCount = tasks.filter((task) => task.completed).length;
+  const allTasksCount = safeTasks.length;
+  const activeTasksCount = safeTasks.filter((task) => !task.completed).length;
+  const completedTasksCount = safeTasks.filter((task) => task.completed).length;
 
   if (loading) {
     return (

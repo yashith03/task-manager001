@@ -1,3 +1,5 @@
+//frontend/components/TaskItem.jsx
+
 import React from 'react';
 
 
@@ -8,10 +10,10 @@ import {useState} from "react";
 const TaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
   const { isDarkMode } = useDarkMode();
   const [isEditing, setIsEditing] = useState(false);
-const [editedText, setEditedText] = useState(task.title);
+  const [editedText, setEditedText] = useState(task.text);
 
   const handleEdit = () => {
-   if (isEditing && editedText !== task.title) {
+   if (isEditing && editedText !== task.text) {
       onEdit(task.id, { text: editedText });
     }
     setIsEditing(!isEditing);
@@ -41,13 +43,10 @@ const [editedText, setEditedText] = useState(task.title);
     className="w-full px-2 py-1 mt-1 text-black border rounded"
   />
 ) : (
-  <h3 className="text-lg font-bold break-words">{task.title}</h3>
+  <h3 className="text-lg font-bold break-words">{task.text}</h3>
 )}
-  {task.description && (
-    <p className="mt-1 text-sm break-words">{task.description}</p>
-  )}
   <p className="text-sm"><strong>Priority:</strong> {task.priority}</p>
-  <p className="text-sm"><strong>Due Date:</strong> {task.dueDate}</p>
+  <p className="text-sm"><strong>Due Date:</strong> {task.dueDate || 'N/A'}</p>
   {task.tags && task.tags.length > 0 && (
     <p className="text-sm">
       <strong>Tags:</strong> {task.tags.join(', ')}
