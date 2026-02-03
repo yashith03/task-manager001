@@ -1,8 +1,6 @@
 // frontend/src/components/TaskDashboard.jsx
 
 import React from 'react';
-
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,47 +9,47 @@ import TaskList from "./TaskList";
 import TaskFilterIcon from "../assets/Filter.png";
 import TaskFilterIconDark from "../assets/Filter_Dark.png";
 import { useDarkMode } from "../components/DarkModeContext";
-import API from "../api/axios";
+import { useTasks } from "../hooks/useTasks";
 
 const Dashboard = () => {
   const { isDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const dashboardRef = useRef(null);
 
-const [tasks, setTasks] = useState([]);
-const [loading, setLoading] = useState(false);
-const [searchTerm, setSearchTerm] = useState("");
-const [statusFilter, setStatusFilter] = useState("All");
-const [priorityFilter, setPriorityFilter] = useState("All");
-const [tagFilter, setTagFilter] = useState("");
-const [showFilters, setShowFilters] = useState(false);
+  const { 
+    tasks, 
+    loading, 
+    addTask, 
+    updateTask, 
+    deleteTask 
+  } = useTasks();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [priorityFilter, setPriorityFilter] = useState("All");
+  const [tagFilter, setTagFilter] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
   const [showGuestAlert, setShowGuestAlert] = useState(false);
   const [showHelpPopup, setShowHelpPopup] = useState(false);
 
-
-
   // Animation variants
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      when: "beforeChildren",
-      staggerChildren: 0.15,
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.15,
+      },
     },
-  },
-};
+  };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
-};
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   useEffect(() => {
     const isGuest = localStorage.getItem("guest") === "true";
@@ -76,82 +74,26 @@ const itemVariants = {
     }
   }, [navigate]);
 
-const fetchTasks = async () => {
-  try {
-    setLoading(true);
-    const response = await API.get("tasks");
+  const handleAddTask = (newTaskData) => {
+    addTask(newTaskData);
+  };
 
-    const data = Array.isArray(response.data) ? response.data : [];
-    setTasks(data);
-  } catch (err) {
-    console.error("Error fetching tasks:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-const handleAddTask = async (newTaskData) => {
-  try {
-    const res = await API.post("tasks", newTaskData);
-    const savedTask = res.data; 
-    setTasks([savedTask, ...tasks]);
-  } catch (err) {
-    console.error("Error adding task:", err);
-    alert("Failed to add task. Please try again.");
-  }
-};
-
-
-const handleToggleComplete = async (id) => {
-  try {
-    console.log("Toggling complete for ID:", id); 
-
-    const taskToToggle = tasks.find((t) => t.id === id);
-    if (!taskToToggle) {
-      console.error("Task not found for ID:", id);
-      return;
-    }
-
-    await API.put(`tasks/${id}`, {
-      ...taskToToggle,
-      completed: !taskToToggle.completed,
-    });
-
-    fetchTasks(); 
-  } catch (err) {
-    console.error("Error toggling task completion:", err);
-    alert("Failed to update task. Please try again.");
-  }
-};
-
-
-  const handleDeleteTask = async (taskId) => {
-    try {
-      await API.delete(`tasks/${taskId}`);
-      fetchTasks();
-    } catch (err) {
-      console.error("Error deleting task:", err);
-      alert("Failed to delete task. Please try again.");
+  const handleToggleComplete = (id) => {
+    const task = tasks.find(t => t.id === id || t.localId === id);
+    if (task) {
+      updateTask(id, { completed: !task.completed });
     }
   };
 
-  const handleEditTask = async (taskId, updatedTaskData) => {
-    try {
-      await API.put(`tasks/${taskId}`, updatedTaskData);
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === taskId ? { ...task, ...updatedTaskData } : task
-        )
-      );
-    } catch (error) {
-      console.error("Error updating task:", error);
-      alert("Failed to update task. Please try again.");
-    }
+  const handleDeleteTask = (taskId) => {
+    deleteTask(taskId);
   };
 
-  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const handleEditTask = (taskId, updatedTaskData) => {
+    updateTask(taskId, updatedTaskData);
+  };
 
-  const filteredTasks = safeTasks
+  const filteredTasks = tasks
     .filter((task) => {
       const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus =
@@ -169,11 +111,11 @@ const handleToggleComplete = async (id) => {
     })
     .sort((a, b) => a.completed - b.completed);
 
-  const allTasksCount = safeTasks.length;
-  const activeTasksCount = safeTasks.filter((task) => !task.completed).length;
-  const completedTasksCount = safeTasks.filter((task) => task.completed).length;
+  const allTasksCount = tasks.length;
+  const activeTasksCount = tasks.filter((task) => !task.completed).length;
+  const completedTasksCount = tasks.filter((task) => task.completed).length;
 
-  if (loading) {
+  if (loading && tasks.length === 0) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "text-white" : "text-black"}`}>
         <div className="text-2xl font-comic">Loading tasks...</div>
@@ -219,8 +161,6 @@ const handleToggleComplete = async (id) => {
           </motion.div>
         </AnimatePresence>
       )}
-
-   
 
       <motion.h1
         className={`text-4xl font-bold mb-4 text-center ${isDarkMode ? 'text-white' : 'text-black'}`}
@@ -301,7 +241,7 @@ const handleToggleComplete = async (id) => {
               className={`px-4 py-1 text-sm rounded-xl border-2 ${isDarkMode ? 'border-white' : 'border-black'} shadow-[2px_2px_0_0_black] transition-all ${
                 statusFilter === label
                   ? isDarkMode ? "bg-blue-600 text-white" : "bg-yellow-300"
-                  : isDarkMode ? "bg-gray-600 text-gray-200 hover:bg-gray-500" : "bg-white hover:bg-yellow-100"
+                  : isDarkMode ? "bg-gray-600 text-gray-200 hover:bg-gray-500" : "bg-white hover:bg-yellow-101"
               }`}
               onClick={() => setStatusFilter(label)}
             >

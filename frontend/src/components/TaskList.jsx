@@ -145,9 +145,9 @@ const renderActionButtons = (task) => {
             <>
               <h2 className="mt-4 mb-2 text-lg font-semibold">Active Tasks</h2>
               <AnimatePresence>
-                {incompleteTasks.map((task, index) => (
+                {incompleteTasks.map((task) => (
                   <motion.div
-                    key={task.id || `task-${index}`}
+                    key={task.id}
                     className={`w-full border-[2.5px] p-4 rounded-xl shadow-[4px_4px_0_0_black] flex flex-col gap-2 ${getPriorityBgColor(task)}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -171,7 +171,11 @@ const renderActionButtons = (task) => {
                     ) : (
                       <>
                         <div className="flex items-center justify-between">
-                          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-black"}`}>{task.text}</h3>
+                          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-black"} flex items-center gap-2`}>
+                            {task.text}
+                            {!task.synced && <span title="Local only" className="text-xs cursor-help">🟡</span>}
+                            {task.synced && <span title="Synced to cloud" className="text-xs cursor-help">🟢</span>}
+                          </h3>
                           {renderActionButtons(task)}
                         </div>
                         <div className={`text-sm flex flex-wrap gap-x-4 gap-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -202,16 +206,20 @@ const renderActionButtons = (task) => {
             <>
               <h2 className="mt-6 mb-2 text-lg font-semibold">Completed Tasks</h2>
               <AnimatePresence>
-                {completedTasks.map((task, index) => (
+                {completedTasks.map((task) => (
                   <motion.div
-                    key={task.id || `task-${index}`}
+                    key={task.id}
                     className={`w-full border-[2.5px] p-4 rounded-xl shadow-[4px_4px_0_0_black] flex flex-col gap-2 ${getPriorityBgColor(task)}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg italic font-semibold text-gray-600 line-through">{task.text}</h3>
+                      <h3 className="text-lg italic font-semibold text-gray-600 line-through flex items-center gap-2">
+                        {task.text}
+                        {!task.synced && <span title="Local only" className="text-xs cursor-help grayscale">🟡</span>}
+                        {task.synced && <span title="Synced to cloud" className="text-xs cursor-help grayscale">🟢</span>}
+                      </h3>
                       {renderActionButtons(task)}
                     </div>
                      <div className={`text-sm flex flex-wrap gap-x-4 gap-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
